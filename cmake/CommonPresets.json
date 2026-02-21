@@ -1,0 +1,14 @@
+{
+   "version": 5,
+   "configurePresets": [
+      {
+         "name": "common-cfg",
+         "displayName": "Common",
+         "description": "",
+         "hidden": true,
+         "generator": "Ninja",
+         "binaryDir": "${sourceDir}/build/${presetName}",
+         "installDir": "${sourceDir}/build/install/${presetName}"
+      }
+   ]
+}
