@@ -12,4 +12,5 @@ add_cpp_module(Renderer
       Renderer.cxx
    LIBS
       SFML::Graphics
+      Input
 )

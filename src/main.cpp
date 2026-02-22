@@ -1,12 +1,12 @@
 #include <print>
 
-import Renderer;
+import Game;
 
 auto main() -> int {
   std::println("Hello!");
 
-  TinyEngine::Renderer renderer{};
-  renderer.Do();
+  TinyEngine::Game game{};
+  game.play();
 
   return 0;
 }
