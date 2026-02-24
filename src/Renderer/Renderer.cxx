@@ -14,10 +14,10 @@ struct Renderer {
                 sf::Style::Close} {
     window_.setFramerateLimit(60);
 
-    auto const &desktop = sf::VideoMode::getDesktopMode();
-    sf::Vector2i const bottomRight{int(desktop.size.x) - width,
-                                   int(desktop.size.y) - height};
-    window_.setPosition(bottomRight);
+    // auto const &desktop = sf::VideoMode::getDesktopMode();
+    // sf::Vector2i const bottomRight{int(desktop.size.x) - width,
+    //                                int(desktop.size.y) - (height + 150)};
+    // window_.setPosition(bottomRight);
 
     // Load textures
     textures_[0] = sf::Texture{"assets/menus/buttons/button_x.png"};
