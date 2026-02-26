@@ -21,10 +21,7 @@ function(add_cpp_module module_name)
 
   target_compile_features(${module_name} PUBLIC cxx_std_26)
 
-  # IWYU Seg-fault. set_property(TARGET ${module_name} PROPERTY
-  # CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-
-  if(CXX_WARNING_FLAGS)
+  if(CXX_WARNING_FLAGS) # Should be CXX_ALL_FLAGS, but sanitizers are not working with C++20 modules
     target_compile_options(${module_name} PRIVATE ${CXX_WARNING_FLAGS})
   endif()
 

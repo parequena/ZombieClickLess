@@ -9,6 +9,7 @@
       "cmake/DebugPresets.json",
       "cmake/ReleasePresets.json",
       "cmake/ClangPresets.json",
+      "cmake/GccPresets.json",
       "cmake/WindowsPresets.json"
    ],
    "configurePresets": [
@@ -28,6 +29,24 @@
          "inherits": [
             "release-cfg",
             "clang-cfg"
+         ]
+      },
+      {
+         "name": "gcc-debug",
+         "displayName": "G++ Debug",
+         "description": "",
+         "inherits": [
+            "debug-cfg",
+            "gcc-cfg"
+         ]
+      },
+      {
+         "name": "gcc-release",
+         "displayName": "Gcc Release",
+         "description": "",
+         "inherits": [
+            "release-cfg",
+            "gcc-cfg"
          ]
       },
       {

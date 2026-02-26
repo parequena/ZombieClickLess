@@ -6,8 +6,6 @@
    "configurePresets": [
       {
          "name": "clang-cfg",
-         "displayName": "Clang",
-         "description": "",
          "hidden": true,
          "inherits": "common-cfg",
          "cacheVariables": {

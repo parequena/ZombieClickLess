@@ -6,8 +6,6 @@
    "configurePresets": [
       {
          "name": "windows-cfg",
-         "displayName": "Windows",
-         "description": "",
          "hidden": true,
          "inherits": "common-cfg",
          "cacheVariables": {

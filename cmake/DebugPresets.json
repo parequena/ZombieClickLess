@@ -6,8 +6,6 @@
    "configurePresets": [
       {
          "name": "debug-cfg",
-         "displayName": "Debug Configuration",
-         "description": "Settings to apply into any Debug Configuration",
          "hidden": true,
          "inherits": "common-cfg",
          "cacheVariables": {
