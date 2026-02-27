@@ -42,7 +42,7 @@
       },
       {
          "name": "gcc-release",
-         "displayName": "Gcc Release",
+         "displayName": "G++ Release",
          "description": "",
          "inherits": [
             "release-cfg",
