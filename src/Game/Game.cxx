@@ -22,8 +22,10 @@ struct Game
    void play() noexcept
    {
       Logger::Info("Starting game!");
-      timer_ = std::make_unique<Timer>(Timer::XSeconds<5>(), []() { Logger::Info("Timer fired!"); });
+      timer_ = std::make_unique<Timer>(Timer::Seconds(10), [&]() { zombieMgr_.SpawnZombie(); });
+      Timer moveHandler{ Timer::Milliseconds(10), [&]() { zombieMgr_.Move(); } };
 
+      zombieMgr_.SpawnZombie(0, 100, Direction::Right);
       while (true)
       {
          const InputState input = renderer_->Update();
@@ -37,7 +39,16 @@ struct Game
          {
             timer_->Reset();
          }
-         renderer_->Draw();
+
+         if (moveHandler.Tick())
+         {
+            moveHandler.Reset();
+         }
+
+         renderer_->Clear();
+         zombieMgr_.ForEach([&](ZombieMgr::ZombiePos const& pos, Direction const dir)
+           { renderer_->DrawZombie(pos.x, pos.y, dir == Direction::Right); });
+         renderer_->Display();
       }
 
       Logger::Info("Closing game!");
@@ -47,7 +58,7 @@ struct Game
 private:
    std::uint16_t defaultWidth{ 640 };
    std::uint16_t defaultHeight{ 480 };
-   ZombieMgr zombieMgr_{};
+   ZombieMgr zombieMgr_{ defaultWidth, defaultHeight };
    std::unique_ptr<Renderer> renderer_{};
    std::unique_ptr<Timer> timer_{};
 };

@@ -23,6 +23,7 @@ struct Renderer
 
       // Load textures
       textures_[0] = sf::Texture{ "assets/menus/buttons/button_x.png" };
+      textures_[1] = sf::Texture{ "assets/Zombie/01-Idle/__Zombie01_Idle_000.png" };
    }
 
    auto Update() -> InputState
@@ -68,20 +69,23 @@ struct Renderer
       return state;
    }
 
-   void Draw()
-   {
-      sf::Sprite shape{ textures_[0] };
+   constexpr auto Clear() noexcept -> void { window_.clear(sf::Color::Transparent); }
+   constexpr auto Display() noexcept -> void { window_.display(); }
 
-      window_.clear(sf::Color::Transparent);
-      window_.draw(shape);
-      window_.display();
+   constexpr auto DrawZombie(int const x, int const y, bool const headingRight)
+   {
+      sf::Sprite zombie{ textures_[1] };
+      float const sx = headingRight ? 0.1f : -0.1f;
+      zombie.setScale({ sx, 0.1f });
+      zombie.setPosition({ float(x), float(y) });
+      window_.draw(zombie);
    }
 
    constexpr auto MustClose() const noexcept -> bool { return mustClose_; }
    constexpr void Close() noexcept { window_.close(); }
 
 private:
-   std::array<sf::Texture, 1> textures_{};
+   std::array<sf::Texture, 2> textures_{};
    sf::RenderWindow window_{};
    bool mustClose_{ false };
 };

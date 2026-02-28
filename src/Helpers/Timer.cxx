@@ -47,13 +47,8 @@ struct [[nodiscard]] Timer
       lastTime_ = Clock_t::now();
    }
 
-   [[nodiscard]] static auto OneSecond() noexcept -> Duration_t { return Duration_t{ 1000 }; }
-
-   template <std::uint8_t N>
-   [[nodiscard]] static auto XSeconds() noexcept -> Duration_t
-   {
-      return N * OneSecond();
-   }
+   [[nodiscard]] static auto Seconds(std::size_t const N) noexcept -> Duration_t { return N * Duration_t{ 1000 }; }
+   [[nodiscard]] static auto Milliseconds(std::size_t const N) noexcept -> Duration_t { return Duration_t{ N }; }
 
 private:
    Duration_t duration_;
