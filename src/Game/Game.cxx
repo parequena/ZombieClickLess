@@ -25,7 +25,7 @@ struct Game
       timer_ = std::make_unique<Timer>(Timer::Seconds(10), [&]() { zombieMgr_.SpawnZombie(); });
       Timer moveHandler{ Timer::Milliseconds(10), [&]() { zombieMgr_.Move(); } };
 
-      zombieMgr_.SpawnZombie(0, 100, Direction::Right);
+      zombieMgr_.SpawnZombie(55, 100, Direction::Right);
       while (true)
       {
          const InputState input = renderer_->Update();

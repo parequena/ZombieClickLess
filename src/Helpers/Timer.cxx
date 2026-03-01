@@ -43,7 +43,7 @@ struct [[nodiscard]] Timer
 
    void Reset() noexcept
    {
-      Logger::Debug("Timer::Reset()");
+      // Logger::Debug("Timer::Reset()");
       lastTime_ = Clock_t::now();
    }
 

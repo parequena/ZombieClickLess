@@ -32,7 +32,7 @@ enum class Direction
 
 struct ZombieMgr
 {
-   using ZombiePos = Position<std::uint8_t>;
+   using ZombiePos = Position<std::uint16_t>;
    inline constinit static std::size_t reserveZombies{ 100 };
 
    explicit ZombieMgr(std::uint16_t const width, std::uint16_t const height) noexcept
@@ -78,23 +78,28 @@ struct ZombieMgr
 
    constexpr auto Move() noexcept
    {
+      constexpr int boundaries{ 50 }; // Placeholder!
       for (std::size_t i = 0; i < lastZombie_; ++i)
       {
          auto& dir = zombieDirections_[i];
          auto& pos = zombiePositions_[i];
+         // Logger::Debug("[{},{}]", pos.x, pos.y);
 
-         // Flip direction if at boundaries
-         if (pos.x <= 10)
+         auto const step = dir == Direction::Left ? -1 : 1;
+         auto newX = pos.x += step;
+
+         if (newX <= boundaries)
          {
             dir = Direction::Right;
+            newX = pos.x + 1;
          }
-         else if (pos.x >= width_ - 10)
+         else if (newX >= width_ - boundaries)
          {
             dir = Direction::Left;
+            newX = pos.x - 1;
          }
 
-         // Move according to direction
-         pos.x += (dir == Direction::Right) ? 1 : -1;
+         pos.x = newX;
       }
    }
 
