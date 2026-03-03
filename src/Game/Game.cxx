@@ -22,7 +22,7 @@ struct Game
    void play() noexcept
    {
       Logger::Info("Starting game!");
-      timer_ = std::make_unique<Timer>(Timer::Seconds(10), [&]() { zombieMgr_.SpawnZombie(); });
+      Timer timer{ Timer::Seconds(10), [&]() { zombieMgr_.SpawnZombie(); } };
       Timer moveHandler{ Timer::Milliseconds(10), [&]() { zombieMgr_.Move(); } };
 
       zombieMgr_.SpawnZombie(55, 100, Direction::Right);
@@ -35,9 +35,9 @@ struct Game
             break;
          }
 
-         if (timer_->Tick())
+         if (timer.Tick())
          {
-            timer_->Reset();
+            timer.Reset();
          }
 
          if (moveHandler.Tick())
@@ -60,6 +60,5 @@ private:
    std::uint16_t defaultHeight{ 480 };
    ZombieMgr zombieMgr_{ defaultWidth, defaultHeight };
    std::unique_ptr<Renderer> renderer_{};
-   std::unique_ptr<Timer> timer_{};
 };
 } // namespace TinyEngine

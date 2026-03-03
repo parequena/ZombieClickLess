@@ -75,6 +75,9 @@ struct Renderer
    constexpr auto DrawZombie(int const x, int const y, bool const headingRight)
    {
       sf::Sprite zombie{ textures_[1] };
+      auto const textureSize = textures_[1].getSize();
+      zombie.setOrigin({ float(textureSize.x) / 2.f, float(textureSize.y) / 2.f });
+
       float const sx = headingRight ? 0.1f : -0.1f;
       zombie.setScale({ sx, 0.1f });
       zombie.setPosition({ float(x), float(y) });
