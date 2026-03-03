@@ -35,14 +35,6 @@ struct ZombieMgr
    using ZombiePos = Position<std::uint16_t>;
    inline constinit static std::size_t reserveZombies{ 100 };
 
-   explicit ZombieMgr(std::uint16_t const width, std::uint16_t const height) noexcept
-       : width_{ width }
-       , height_{ height }
-   {
-      zombiePositions_.reserve(reserveZombies);
-      zombieDirections_.reserve(reserveZombies);
-   }
-
    constexpr auto SpawnZombie() -> void
    {
       auto getRandomNumber = [](int const max)
@@ -101,6 +93,12 @@ struct ZombieMgr
 
          pos.x = newX;
       }
+   }
+
+   constexpr auto SetBoundaries(std::uint16_t const width, std::uint16_t const height) noexcept
+   {
+      width_ = width;
+      height_ = height;
    }
 
 private:

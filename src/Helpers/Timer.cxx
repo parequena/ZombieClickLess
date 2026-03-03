@@ -17,11 +17,19 @@ struct [[nodiscard]] Timer
    using Duration_t = std::chrono::milliseconds;
    using Callback_t = std::function<void()>;
 
-   explicit constexpr Timer(Duration_t const& duration, Callback_t&& onElapsed) noexcept
+   explicit constexpr Timer(Duration_t const& duration, Callback_t&& callback) noexcept
        : duration_{ duration }
-       , onElapsed_{ std::move(onElapsed) }
+       , callback_{ std::move(callback) }
    {
    }
+
+   constexpr Timer() noexcept
+       : Timer{ Duration_t{ 0 }, []() { } }
+   {
+   }
+
+   constexpr auto SetTime(Duration_t const& dur) noexcept { duration_ = dur; }
+   constexpr auto SetCallback(Callback_t&& callback) { callback_ = std::move(callback); }
 
    auto Tick() noexcept -> bool
    {
@@ -34,9 +42,9 @@ struct [[nodiscard]] Timer
       }
 
       lastTime_ = now;
-      if (onElapsed_)
+      if (callback_)
       {
-         onElapsed_();
+         callback_();
       }
       return true;
    }
@@ -52,7 +60,7 @@ struct [[nodiscard]] Timer
 
 private:
    Duration_t duration_;
-   Callback_t onElapsed_;
+   Callback_t callback_;
    TimePoint_t lastTime_{ Clock_t::now() };
 };
 

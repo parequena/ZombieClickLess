@@ -2,6 +2,7 @@ module;
 
 #include <cstdint>
 #include <memory>
+#include <array>
 
 export module Game;
 
@@ -15,17 +16,45 @@ export namespace TinyEngine
 struct Game
 {
    explicit Game()
-       : renderer_{ std::make_unique<Renderer>(defaultWidth, defaultHeight) }
+       : renderer_{ std::make_unique<Renderer>(defaultWidth_, defaultHeight_) }
    {
    }
 
    void play() noexcept
    {
-      Logger::Info("Starting game!");
-      Timer timer{ Timer::Seconds(10), [&]() { zombieMgr_.SpawnZombie(); } };
-      Timer moveHandler{ Timer::Milliseconds(10), [&]() { zombieMgr_.Move(); } };
+      static constexpr std::size_t nManagers{ 2 };
+      std::array<ZombieMgr, nManagers> managers{};
+      for (auto& man : managers)
+      {
+         man.SetBoundaries(defaultWidth_, defaultHeight_);
+      }
 
-      zombieMgr_.SpawnZombie(55, 100, Direction::Right);
+      std::array<Timer, nManagers> spawners{};
+      std::array<Timer, nManagers> movements{};
+
+      for (std::size_t i = 0; i < nManagers; ++i)
+      {
+         spawners[i].SetTime(Timer::Seconds(10));
+         spawners[i].SetCallback([&managers, i]() { managers[i].SpawnZombie(); });
+
+         movements[i].SetTime(Timer::Milliseconds(10));
+         movements[i].SetCallback([&managers, i]() { managers[i].Move(); });
+      }
+
+      Logger::Info("Starting game!");
+
+      constexpr auto TickAllTimers = [](auto& timers)
+      {
+         for (auto& timer : timers)
+         {
+            if (timer.Tick())
+            {
+               timer.Reset();
+            }
+         }
+      };
+
+      managers[0].SpawnZombie(55, 100, Direction::Right);
       while (true)
       {
          const InputState input = renderer_->Update();
@@ -35,19 +64,16 @@ struct Game
             break;
          }
 
-         if (timer.Tick())
-         {
-            timer.Reset();
-         }
-
-         if (moveHandler.Tick())
-         {
-            moveHandler.Reset();
-         }
+         TickAllTimers(spawners);
+         TickAllTimers(movements);
 
          renderer_->Clear();
-         zombieMgr_.ForEach([&](ZombieMgr::ZombiePos const& pos, Direction const dir)
-           { renderer_->DrawZombie(pos.x, pos.y, dir == Direction::Right); });
+
+         for (auto const& manager : managers)
+         {
+            manager.ForEach([&](ZombieMgr::ZombiePos const& pos, Direction const dir)
+              { renderer_->DrawZombie(pos.x, pos.y, dir == Direction::Right); });
+         }
          renderer_->Display();
       }
 
@@ -56,9 +82,8 @@ struct Game
    }
 
 private:
-   std::uint16_t defaultWidth{ 640 };
-   std::uint16_t defaultHeight{ 480 };
-   ZombieMgr zombieMgr_{ defaultWidth, defaultHeight };
+   std::uint16_t defaultWidth_{ 640 };
+   std::uint16_t defaultHeight_{ 480 };
    std::unique_ptr<Renderer> renderer_{};
 };
 } // namespace TinyEngine
