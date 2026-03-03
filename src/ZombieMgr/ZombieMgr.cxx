@@ -78,7 +78,7 @@ struct ZombieMgr
 
    constexpr auto Move() noexcept
    {
-      constexpr int boundaries{ 50 }; // Placeholder!
+      constexpr int boundaries{ 30 }; // Placeholder!
       for (std::size_t i = 0; i < lastZombie_; ++i)
       {
          auto& dir = zombieDirections_[i];
