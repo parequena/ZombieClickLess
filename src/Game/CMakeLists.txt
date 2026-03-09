@@ -3,6 +3,7 @@ add_cpp_module(Game
       Game.cxx
    LIBS
       Helpers
+      Button
       ZombieMgr
       Renderer
 )

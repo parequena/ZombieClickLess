@@ -10,6 +10,7 @@ import Renderer;
 import Input;
 import ZombieMgr;
 import Helpers;
+import Button;
 
 export namespace TinyEngine
 {
@@ -17,16 +18,20 @@ struct Game
 {
    explicit Game()
        : renderer_{ std::make_unique<Renderer>(defaultWidth_, defaultHeight_) }
+       , closeButton_{ 10, 10, 64, 64, [&]() { keepPlaying_ = false; } }
    {
    }
 
    void play() noexcept
    {
-      static constexpr std::size_t nManagers{ 2 };
+      static constexpr std::size_t nManagers{ 5 };
       std::array<ZombieMgr, nManagers> managers{};
-      for (auto& man : managers)
+      for (std::uint16_t i = 0; i < nManagers; ++i)
       {
-         man.SetBoundaries(defaultWidth_, defaultHeight_);
+         std::uint16_t const spacing = (defaultHeight_ - 5) / nManagers;
+         std::uint16_t const top = 5 + i * spacing;
+         std::uint16_t const bot = (i == nManagers - 1) ? defaultHeight_ : top + spacing;
+         managers[i].SetBoundaries(/* top */ top, /* bot */ bot, /* left*/ 0, /* right */ defaultWidth_);
       }
 
       std::array<Timer, nManagers> spawners{};
@@ -34,10 +39,10 @@ struct Game
 
       for (std::size_t i = 0; i < nManagers; ++i)
       {
-         spawners[i].SetTime(Timer::Seconds(10));
+         spawners[i].SetTime(Timer::Seconds(5));
          spawners[i].SetCallback([&managers, i]() { managers[i].SpawnZombie(); });
 
-         movements[i].SetTime(Timer::Milliseconds(10));
+         movements[i].SetTime(Timer::Milliseconds(50));
          movements[i].SetCallback([&managers, i]() { managers[i].Move(); });
       }
 
@@ -55,6 +60,7 @@ struct Game
       };
 
       managers[0].SpawnZombie(55, 100, Direction::Right);
+
       while (true)
       {
          const InputState input = renderer_->Update();
@@ -64,10 +70,19 @@ struct Game
             break;
          }
 
+         closeButton_.Update(input);
+         if (!keepPlaying_)
+         {
+            break;
+         }
+
          TickAllTimers(spawners);
          TickAllTimers(movements);
 
          renderer_->Clear();
+
+         auto const [x, y, w, h] = closeButton_.GetPositions();
+         renderer_->DrawButton(x, y, w, h);
 
          for (auto const& manager : managers)
          {
@@ -85,5 +100,7 @@ private:
    std::uint16_t defaultWidth_{ 640 };
    std::uint16_t defaultHeight_{ 480 };
    std::unique_ptr<Renderer> renderer_{};
+   Button closeButton_;
+   bool keepPlaying_{ true };
 };
 } // namespace TinyEngine

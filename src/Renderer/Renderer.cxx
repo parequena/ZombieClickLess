@@ -22,7 +22,7 @@ struct Renderer
       // window_.setPosition(bottomRight);
 
       // Load textures
-      textures_[0] = sf::Texture{ "assets/menus/buttons/button_x.png" };
+      textures_[0] = sf::Texture{ "assets/menus/buttons/button_x.png", false, sf::IntRect({ 0, 0 }, { 24, 24 }) };
       textures_[1] = sf::Texture{ "assets/Zombie/01-Idle/__Zombie01_Idle_000.png" };
    }
 
@@ -84,12 +84,19 @@ struct Renderer
       window_.draw(zombie);
    }
 
-   constexpr auto MustClose() const noexcept -> bool { return mustClose_; }
+   constexpr auto DrawButton(int const x, int const y, int const w, int const h)
+   {
+      sf::Sprite btn{ textures_[0] };
+      btn.setPosition({ float(x), float(y) });
+      auto const texSize = textures_[0].getSize();
+      btn.setScale({ float(w) / float(texSize.x), float(h) / float(texSize.y) });
+      window_.draw(btn);
+   }
+
    constexpr void Close() noexcept { window_.close(); }
 
 private:
    std::array<sf::Texture, 2> textures_{};
    sf::RenderWindow window_{};
-   bool mustClose_{ false };
 };
 } // namespace TinyEngine
