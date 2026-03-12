@@ -12,10 +12,11 @@ export namespace TinyEngine
 {
 struct Renderer
 {
+   static constexpr std::uint16_t FPS{ 60 };
    explicit Renderer(std::uint16_t const width, std::uint16_t height)
        : window_{ sf::VideoMode({ width, height }), "ZombieClickless", sf::Style::Close }
    {
-      window_.setFramerateLimit(60);
+      window_.setFramerateLimit(FPS);
 
       // auto const &desktop = sf::VideoMode::getDesktopMode();
       // sf::Vector2i const bottomRight{int(desktop.size.x) - width,

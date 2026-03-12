@@ -23,7 +23,7 @@ struct Game
    {
    }
 
-   void play() noexcept
+   void play(float const dt) noexcept
    {
       static constexpr std::size_t nManagers{ 5 };
       std::array<ZombieMgr, nManagers> managers{ };
@@ -44,7 +44,7 @@ struct Game
          spawners[i].SetCallback([&managers, i]() { managers[i].SpawnZombie(); });
 
          movements[i].SetTime(Timer::Milliseconds(50));
-         movements[i].SetCallback([&managers, i]() { managers[i].Move(); });
+         movements[i].SetCallback([&managers, i, dt]() { managers[i].Move(dt); });
       }
 
       Logger::Info("Starting game!");
