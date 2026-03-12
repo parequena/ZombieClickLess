@@ -89,12 +89,12 @@ struct Renderer
       window_.draw(zombie);
    }
 
-   constexpr auto DrawButton(Vector2Du16 const& position, int const w, int const h)
+   constexpr auto DrawButton(Box<std::uint16_t> const& box)
    {
       sf::Sprite btn{ textures_[0] };
-      btn.setPosition({ float(position.X()), float(position.Y()) });
+      btn.setPosition({ float(box.X()), float(box.Y()) });
       auto const texSize = textures_[0].getSize();
-      btn.setScale({ float(w) / float(texSize.x), float(h) / float(texSize.y) });
+      btn.setScale({ float(box.W()) / float(texSize.x), float(box.H()) / float(texSize.y) });
       window_.draw(btn);
    }
 

@@ -1,5 +1,6 @@
 import Game;
 import Renderer;
+import Math;
 
 auto main() -> int
 {

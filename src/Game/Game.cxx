@@ -3,6 +3,7 @@ module;
 #include <cstdint>
 #include <memory>
 #include <array>
+#include <vector>
 
 export module Game;
 
@@ -19,20 +20,22 @@ struct Game
 {
    explicit Game()
        : renderer_{ std::make_unique<Renderer>(defaultWidth_, defaultHeight_) }
-       , closeButton_{ Vector2Du16{ 10, 10 }, 64, 64, [&]() { keepPlaying_ = false; } }
+       , closeButton_{ Box<std::uint16_t>{ Vector2Du16{ 10, 10 }, 64, 64 }, [&]() { keepPlaying_ = false; } }
    {
    }
 
    void play(float const dt) noexcept
    {
       static constexpr std::size_t nManagers{ 5 };
-      std::array<ZombieMgr, nManagers> managers{ };
+      std::vector<ZombieMgr> managers{ };
+      managers.reserve(nManagers);
       for (std::uint16_t i = 0; i < nManagers; ++i)
       {
          std::uint16_t const spacing = (defaultHeight_ - 5) / nManagers;
          std::uint16_t const top = 5 + i * spacing;
          std::uint16_t const bot = (i == nManagers - 1) ? defaultHeight_ : top + spacing;
-         managers[i].SetBoundaries(/* top */ top, /* bot */ bot, /* left*/ 0, /* right */ defaultWidth_);
+         managers.emplace_back(
+           Box<std::uint16_t>{ Vector2Du16{ 0, top }, defaultWidth_, static_cast<std::uint16_t>(bot - top) });
       }
 
       std::array<Timer, nManagers> spawners{ };
@@ -82,8 +85,7 @@ struct Game
 
          renderer_->Clear();
 
-         auto const [position, w, h] = closeButton_.GetPositions();
-         renderer_->DrawButton(position, w, h);
+         renderer_->DrawButton(closeButton_.GetBox());
 
          for (auto const& manager : managers)
          {

@@ -27,6 +27,11 @@ enum class Direction
 
 struct ZombieMgr
 {
+   explicit ZombieMgr(Box<std::uint16_t> const& boundaries)
+       : boundaries_{ boundaries }
+   {
+   }
+
    constexpr auto SpawnZombie() -> void
    {
       auto getRandomNumber = [](int const min, int const max)
@@ -37,8 +42,8 @@ struct ZombieMgr
          return distrib(gen);
       };
 
-      int const x = getRandomNumber(left_, right_);
-      int const y = getRandomNumber(top_, bot_);
+      int const x = getRandomNumber(boundaries_.Left(), boundaries_.Right());
+      int const y = getRandomNumber(boundaries_.Top(), boundaries_.Bot());
       Direction const dir = getRandomNumber(0, 1) == 0 ? Direction::Left : Direction::Right;
 
       SpawnZombie(x, y, dir);
@@ -73,12 +78,12 @@ struct ZombieMgr
          auto const step = dir == Direction::Left ? -vel : vel;
          auto newX = pos.X() + step;
 
-         if (newX <= left_ + boundaries)
+         if (newX <= boundaries_.Left() + boundaries)
          {
             dir = Direction::Right;
             newX = pos.X() + 1;
          }
-         else if (newX >= right_ - boundaries)
+         else if (newX >= boundaries_.Right() - boundaries)
          {
             dir = Direction::Left;
             newX = pos.X() - 1;
@@ -88,22 +93,10 @@ struct ZombieMgr
       }
    }
 
-   constexpr auto SetBoundaries(std::uint16_t top, std::uint16_t bot, std::uint16_t left, std::uint16_t right) noexcept
-     -> void
-   {
-      top_ = top;
-      bot_ = bot;
-      left_ = left;
-      right_ = right;
-   }
-
    constexpr auto ZombieCount() const noexcept -> std::size_t { return lastZombie_; }
 
 private:
-   std::uint16_t top_{ };
-   std::uint16_t bot_{ };
-   std::uint16_t left_{ };
-   std::uint16_t right_{ };
+   Box<std::uint16_t> boundaries_{ };
    std::vector<Vector2Df> zombiePositions_{ };
    std::vector<Direction> zombieDirections_{ };
    std::size_t lastZombie_{ };
