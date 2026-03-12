@@ -8,6 +8,7 @@ module;
 export module ZombieMgr;
 
 import Helpers;
+import Math;
 
 export namespace TinyEngine
 {
@@ -18,13 +19,6 @@ export namespace TinyEngine
 
 (0, 10)     (10, 10)
 */
-template <class T>
-struct Position
-{
-   T x{};
-   T y{};
-};
-
 enum class Direction
 {
    Left,
@@ -33,8 +27,6 @@ enum class Direction
 
 struct ZombieMgr
 {
-   using ZombiePos = Position<std::uint16_t>;
-
    constexpr auto SpawnZombie() -> void
    {
       auto getRandomNumber = [](int const min, int const max)
@@ -62,7 +54,7 @@ struct ZombieMgr
 
    constexpr auto ForEach(auto&& func) const noexcept
    {
-      for (std::size_t i{}; i < lastZombie_; ++i)
+      for (std::size_t i{ }; i < lastZombie_; ++i)
       {
          func(zombiePositions_[i], zombieDirections_[i]);
       }
@@ -70,28 +62,28 @@ struct ZombieMgr
 
    constexpr auto Move() noexcept
    {
+      auto const vel{ 1.0F };
       constexpr int boundaries{ 30 }; // Placeholder!
       for (std::size_t i = 0; i < lastZombie_; ++i)
       {
          auto& dir = zombieDirections_[i];
          auto& pos = zombiePositions_[i];
-         // Logger::Debug("[{},{}]", pos.x, pos.y);
 
-         auto const step = dir == Direction::Left ? -1 : 1;
-         auto newX = pos.x += step;
+         auto const step = dir == Direction::Left ? -vel : vel;
+         auto newX = pos.X() + step;
 
          if (newX <= left_ + boundaries)
          {
             dir = Direction::Right;
-            newX = pos.x + 1;
+            newX = pos.X() + 1;
          }
          else if (newX >= right_ - boundaries)
          {
             dir = Direction::Left;
-            newX = pos.x - 1;
+            newX = pos.X() - 1;
          }
 
-         pos.x = newX;
+         pos.X(newX);
       }
    }
 
@@ -107,12 +99,12 @@ struct ZombieMgr
    constexpr auto ZombieCount() const noexcept -> std::size_t { return lastZombie_; }
 
 private:
-   std::uint16_t top_{};
-   std::uint16_t bot_{};
-   std::uint16_t left_{};
-   std::uint16_t right_{};
-   std::vector<ZombiePos> zombiePositions_{};
-   std::vector<Direction> zombieDirections_{};
-   std::size_t lastZombie_{};
+   std::uint16_t top_{ };
+   std::uint16_t bot_{ };
+   std::uint16_t left_{ };
+   std::uint16_t right_{ };
+   std::vector<Vector2Df> zombiePositions_{ };
+   std::vector<Direction> zombieDirections_{ };
+   std::size_t lastZombie_{ };
 };
 } // namespace TinyEngine

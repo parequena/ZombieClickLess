@@ -11,6 +11,7 @@ add_cpp_module(Renderer
    FILES
       Renderer.cxx
    LIBS
+      Math
       SFML::Graphics
       Input
 )

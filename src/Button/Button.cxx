@@ -7,14 +7,14 @@ module;
 export module Button;
 
 import Input;
+import Math;
 
 export namespace TinyEngine
 {
 struct [[nodiscard]] Button
 {
-   Button(std::uint16_t const x, std::uint16_t const y, std::uint16_t const w, std::uint16_t const h, auto&& onClick)
-       : x_{ x }
-       , y_{ y }
+   Button(Vector2Du16 const& position, std::uint16_t const w, std::uint16_t const h, auto&& onClick)
+       : position_{ position }
        , w_{ w }
        , h_{ h }
        , onClick_{ std::move(onClick) }
@@ -30,19 +30,19 @@ struct [[nodiscard]] Button
          return;
       }
 
-      if (input.mouseX >= x_ && input.mouseX <= x_ + w_ && input.mouseY >= y_ && input.mouseY <= y_ + h_)
+      if (input.mouseX >= position_.X() && input.mouseX <= position_.X() + w_ && input.mouseY >= position_.Y()
+        && input.mouseY <= position_.Y() + h_)
       {
          onClick_();
       }
    }
 
-   [[nodiscard]] constexpr auto GetPositions() const noexcept { return std::tuple{ x_, y_, w_, h_ }; }
+   [[nodiscard]] constexpr auto GetPositions() const noexcept { return std::tuple{ position_, w_, h_ }; }
 
 private:
-   std::uint16_t x_{};
-   std::uint16_t y_{};
-   std::uint16_t w_{};
-   std::uint16_t h_{};
-   std::function<void()> onClick_{};
+   Vector2Du16 position_{ };
+   std::uint16_t w_{ };
+   std::uint16_t h_{ };
+   std::function<void()> onClick_{ };
 };
 } // namespace TinyEngine

@@ -6,6 +6,7 @@ module;
 export module Renderer;
 
 import Input;
+import Math;
 
 export namespace TinyEngine
 {
@@ -28,7 +29,7 @@ struct Renderer
 
    auto Update() -> InputState
    {
-      InputState state{};
+      InputState state{ };
 
       while (const std::optional event = window_.pollEvent())
       {
@@ -72,22 +73,25 @@ struct Renderer
    constexpr auto Clear() noexcept -> void { window_.clear(sf::Color::Transparent); }
    constexpr auto Display() noexcept -> void { window_.display(); }
 
-   constexpr auto DrawZombie(int const x, int const y, bool const headingRight)
+   constexpr auto DrawZombie(Vector2Df const& position, bool const headingRight)
    {
+      auto const x = position.X();
+      auto const y = position.Y();
+
       sf::Sprite zombie{ textures_[1] };
       auto const textureSize = textures_[1].getSize();
       zombie.setOrigin({ float(textureSize.x) / 2.f, float(textureSize.y) / 2.f });
 
       float const sx = headingRight ? 0.1f : -0.1f;
       zombie.setScale({ sx, 0.1f });
-      zombie.setPosition({ float(x), float(y) });
+      zombie.setPosition({ x, y });
       window_.draw(zombie);
    }
 
-   constexpr auto DrawButton(int const x, int const y, int const w, int const h)
+   constexpr auto DrawButton(Vector2Du16 const& position, int const w, int const h)
    {
       sf::Sprite btn{ textures_[0] };
-      btn.setPosition({ float(x), float(y) });
+      btn.setPosition({ float(position.X()), float(position.Y()) });
       auto const texSize = textures_[0].getSize();
       btn.setScale({ float(w) / float(texSize.x), float(h) / float(texSize.y) });
       window_.draw(btn);
@@ -96,7 +100,7 @@ struct Renderer
    constexpr void Close() noexcept { window_.close(); }
 
 private:
-   std::array<sf::Texture, 2> textures_{};
-   sf::RenderWindow window_{};
+   std::array<sf::Texture, 2> textures_{ };
+   sf::RenderWindow window_{ };
 };
 } // namespace TinyEngine

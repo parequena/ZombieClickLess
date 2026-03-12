@@ -3,4 +3,5 @@ add_cpp_module(ZombieMgr
       ZombieMgr.cxx
    LIBS
       Helpers
+      Math
 )
