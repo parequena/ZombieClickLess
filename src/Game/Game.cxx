@@ -18,24 +18,26 @@ export namespace TinyEngine
 {
 struct Game
 {
+   static constexpr std::size_t WIDTH{ 640 };
+   static constexpr std::size_t HEIGHT{ 480 };
    explicit Game()
-       : renderer_{ std::make_unique<Renderer>(defaultWidth_, defaultHeight_) }
-       , closeButton_{ Box<std::uint16_t>{ Vector2Du16{ 10, 10 }, 64, 64 }, [&]() { keepPlaying_ = false; } }
+       : renderer_{ std::make_unique<Renderer>(WIDTH, HEIGHT) }
+       , closeButton_{ Box<std::uint16_t>{ Vector2Du16{ WIDTH - 64, 0 }, 64, 64 }, [&]() { keepPlaying_ = false; } }
    {
    }
 
    void play(float const dt) noexcept
    {
       static constexpr std::size_t nManagers{ 5 };
-      std::vector<ZombieMgr> managers{ };
-      managers.reserve(nManagers);
+
+      managers_.reserve(nManagers);
       for (std::uint16_t i = 0; i < nManagers; ++i)
       {
-         std::uint16_t const spacing = (defaultHeight_ - 5) / nManagers;
-         std::uint16_t const top = 5 + i * spacing;
-         std::uint16_t const bot = (i == nManagers - 1) ? defaultHeight_ : top + spacing;
-         managers.emplace_back(
-           Box<std::uint16_t>{ Vector2Du16{ 0, top }, defaultWidth_, static_cast<std::uint16_t>(bot - top) });
+         std::uint16_t const spacing = (HEIGHT - 64) / nManagers;
+         std::uint16_t const top = 64 + i * spacing;
+         std::uint16_t const bot = (i == nManagers - 1) ? HEIGHT : top + spacing;
+         managers_.emplace_back(
+           Box<std::uint16_t>{ Vector2Du16{ 0, top }, WIDTH, static_cast<std::uint16_t>(bot - top) });
       }
 
       std::array<Timer, nManagers> spawners{ };
@@ -43,11 +45,11 @@ struct Game
 
       for (std::size_t i = 0; i < nManagers; ++i)
       {
-         spawners[i].SetTime(Timer::Seconds(5));
-         spawners[i].SetCallback([&managers, i]() { managers[i].SpawnZombie(); });
+         spawners[i].SetTime(Timer::Seconds(5 + i));
+         spawners[i].SetCallback([&, i]() { managers_[i].SpawnZombie(); });
 
-         movements[i].SetTime(Timer::Milliseconds(50));
-         movements[i].SetCallback([&managers, i, dt]() { managers[i].Move(dt); });
+         movements[i].SetTime(Timer::Milliseconds(100 + i * 10));
+         movements[i].SetCallback([&, i]() { managers_[i].Move(dt); });
       }
 
       Logger::Info("Starting game!");
@@ -62,8 +64,6 @@ struct Game
             }
          }
       };
-
-      managers[0].SpawnZombie(55, 100, Direction::Right);
 
       while (true)
       {
@@ -83,26 +83,31 @@ struct Game
          TickAllTimers(spawners);
          TickAllTimers(movements);
 
-         renderer_->Clear();
-
-         renderer_->DrawButton(closeButton_.GetBox());
-
-         for (auto const& manager : managers)
-         {
-            manager.ForEach(
-              [&](Vector2Df const& pos, Direction const dir) { renderer_->DrawZombie(pos, dir == Direction::Right); });
-         }
-         renderer_->Display();
+         Draw();
       }
 
       Logger::Info("Closing game!");
       renderer_->Close();
    }
 
+   void Draw()
+   {
+      renderer_->Clear();
+
+      renderer_->DrawButton(closeButton_.GetBox());
+
+      for (auto const& manager : managers_)
+      {
+         renderer_->DrawManager(manager.GetBox());
+         manager.ForEach(
+           [&](Vector2Df const& pos, Direction const dir) { renderer_->DrawZombie(pos, dir == Direction::Right); });
+      }
+      renderer_->Display();
+   }
+
 private:
-   std::uint16_t defaultWidth_{ 640 };
-   std::uint16_t defaultHeight_{ 480 };
    std::unique_ptr<Renderer> renderer_{ };
+   std::vector<ZombieMgr> managers_{ };
    Button closeButton_;
    bool keepPlaying_{ true };
 };

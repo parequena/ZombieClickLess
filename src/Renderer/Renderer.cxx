@@ -12,6 +12,14 @@ export namespace TinyEngine
 {
 struct Renderer
 {
+   enum class Texture : std::uint8_t
+   {
+      Button,
+      Zombie,
+      Manager,
+      Count
+   };
+
    static constexpr std::uint16_t FPS{ 60 };
    explicit Renderer(std::uint16_t const width, std::uint16_t height)
        : window_{ sf::VideoMode({ width, height }), "ZombieClickless", sf::Style::Close }
@@ -24,8 +32,10 @@ struct Renderer
       // window_.setPosition(bottomRight);
 
       // Load textures
-      textures_[0] = sf::Texture{ "assets/menus/buttons/button_x.png", false, sf::IntRect({ 0, 0 }, { 24, 24 }) };
-      textures_[1] = sf::Texture{ "assets/Zombie/01-Idle/__Zombie01_Idle_000.png" };
+      textures_[std::size_t(Texture::Button)]
+        = sf::Texture{ "assets/menus/buttons/button_x.png", false, sf::IntRect({ 0, 0 }, { 24, 24 }) };
+      textures_[std::size_t(Texture::Zombie)] = sf::Texture{ "assets/Zombie/01-Idle/__Zombie01_Idle_000.png" };
+      textures_[std::size_t(Texture::Manager)] = sf::Texture{ "assets/menus/character.png" };
    }
 
    auto Update() -> InputState
@@ -79,8 +89,8 @@ struct Renderer
       auto const x = position.X();
       auto const y = position.Y();
 
-      sf::Sprite zombie{ textures_[1] };
-      auto const textureSize = textures_[1].getSize();
+      sf::Sprite zombie{ textures_[std::size_t(Texture::Zombie)] };
+      auto const textureSize = textures_[std::size_t(Texture::Zombie)].getSize();
       zombie.setOrigin({ float(textureSize.x) / 2.f, float(textureSize.y) / 2.f });
 
       float const sx = headingRight ? 0.1f : -0.1f;
@@ -89,19 +99,23 @@ struct Renderer
       window_.draw(zombie);
    }
 
-   constexpr auto DrawButton(Box<std::uint16_t> const& box)
-   {
-      sf::Sprite btn{ textures_[0] };
-      btn.setPosition({ float(box.X()), float(box.Y()) });
-      auto const texSize = textures_[0].getSize();
-      btn.setScale({ float(box.W()) / float(texSize.x), float(box.H()) / float(texSize.y) });
-      window_.draw(btn);
-   }
+   constexpr auto DrawButton(Box<std::uint16_t> const& box) { DrawBox(box, Texture::Button, { 255, 255, 255, 255 }); }
+   constexpr auto DrawManager(Box<std::uint16_t> const& box) { DrawBox(box, Texture::Manager, { 255, 255, 255, 128 }); }
 
    constexpr void Close() noexcept { window_.close(); }
 
 private:
-   std::array<sf::Texture, 2> textures_{ };
+   std::array<sf::Texture, std::size_t(Texture::Count)> textures_{ };
    sf::RenderWindow window_{ };
+
+   constexpr auto DrawBox(Box<std::uint16_t> const& box, Texture const textureIdx, sf::Color const& color) -> void
+   {
+      sf::Sprite sprite{ textures_[std::size_t(textureIdx)] };
+      sprite.setPosition({ float(box.X()), float(box.Y()) });
+      auto const texSize = textures_[std::size_t(textureIdx)].getSize();
+      sprite.setScale({ float(box.W()) / float(texSize.x), float(box.H()) / float(texSize.y) });
+      sprite.setColor(color);
+      window_.draw(sprite);
+   }
 };
 } // namespace TinyEngine

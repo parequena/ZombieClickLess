@@ -94,6 +94,7 @@ struct ZombieMgr
    }
 
    constexpr auto ZombieCount() const noexcept -> std::size_t { return lastZombie_; }
+   constexpr auto GetBox() const noexcept -> Box<std::uint16_t> { return boundaries_; }
 
 private:
    Box<std::uint16_t> boundaries_{ };
