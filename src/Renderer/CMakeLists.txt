@@ -14,4 +14,5 @@ add_cpp_module(Renderer
       Math
       SFML::Graphics
       Input
+      ZombieMgr
 )

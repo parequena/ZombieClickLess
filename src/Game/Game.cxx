@@ -10,6 +10,7 @@ export module Game;
 import Renderer;
 import Input;
 import ZombieMgr;
+import ZombieMgr.Zombie;
 import Helpers;
 import Button;
 import Math;
@@ -40,8 +41,8 @@ struct Game
            Box<std::uint16_t>{ Vector2Du16{ 0, top }, WIDTH, static_cast<std::uint16_t>(bot - top) });
       }
 
-      std::array<Timer, nManagers> spawners{ };
-      std::array<Timer, nManagers> movements{ };
+      std::array<Timer, nManagers> spawners{};
+      std::array<Timer, nManagers> movements{};
 
       for (std::size_t i = 0; i < nManagers; ++i)
       {
@@ -99,15 +100,14 @@ struct Game
       for (auto const& manager : managers_)
       {
          renderer_->DrawManager(manager.GetBox());
-         manager.ForEach(
-           [&](Vector2Df const& pos, Direction const dir) { renderer_->DrawZombie(pos, dir == Direction::Right); });
+         manager.ForEach([&](Zombie const& zombie) { renderer_->DrawZombie(zombie); });
       }
       renderer_->Display();
    }
 
 private:
-   std::unique_ptr<Renderer> renderer_{ };
-   std::vector<ZombieMgr> managers_{ };
+   std::unique_ptr<Renderer> renderer_{};
+   std::vector<ZombieMgr> managers_{};
    Button closeButton_;
    bool keepPlaying_{ true };
 };

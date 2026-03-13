@@ -9,6 +9,7 @@ export module ZombieMgr;
 
 import Helpers;
 import Math;
+import ZombieMgr.Zombie;
 
 export namespace TinyEngine
 {
@@ -19,12 +20,6 @@ export namespace TinyEngine
 
 (0, 10)     (10, 10)
 */
-enum class Direction
-{
-   Left,
-   Right,
-};
-
 struct ZombieMgr
 {
    explicit ZombieMgr(Box<std::uint16_t> const& boundaries)
@@ -32,64 +27,56 @@ struct ZombieMgr
    {
    }
 
-   constexpr auto SpawnZombie() -> void
+   template <Numeric T>
+   constexpr auto GetRandomNumber(T const min, T const max) noexcept -> T
    {
-      auto getRandomNumber = [](int const min, int const max)
+      if constexpr (is_float<T>)
       {
-         std::random_device rd;
-         std::mt19937 gen(rd());
-         std::uniform_int_distribution<> distrib(min, max);
-         return distrib(gen);
-      };
+         std::uniform_real_distribution<T> distribution(min, max);
+         return distribution(randomGenerator_);
+      }
 
-      int const x = getRandomNumber(boundaries_.Left(), boundaries_.Right());
-      int const y = getRandomNumber(boundaries_.Top(), boundaries_.Bot());
-      Direction const dir = getRandomNumber(0, 1) == 0 ? Direction::Left : Direction::Right;
-
-      SpawnZombie(x, y, dir);
+      std::uniform_int_distribution<T> distribution(min, max);
+      return distribution(randomGenerator_);
    }
 
-   constexpr auto SpawnZombie(int const x, int const y, Direction const dir) -> void
+   constexpr auto SpawnZombie() -> void
    {
-      // Logger::Debug("Spawning zombie!");
-      zombiePositions_.emplace_back(x, y);
-      zombieDirections_.emplace_back(dir);
+      float const x = GetRandomNumber(boundaries_.Left(), boundaries_.Right());
+      float const y = GetRandomNumber(boundaries_.Top(), boundaries_.Bot());
+
+      SpawnZombie(Vector2Df(x, y));
+   }
+
+   constexpr auto SpawnZombie(Vector2Df const& pos) -> void
+   {
+      zombies_.emplace_back(pos);
       ++lastZombie_;
    }
 
    constexpr auto ForEach(auto&& func) const noexcept
    {
-      for (std::size_t i{ }; i < lastZombie_; ++i)
+      for (auto const& zombie : zombies_)
       {
-         func(zombiePositions_[i], zombieDirections_[i]);
+         func(zombie);
       }
    }
 
    constexpr auto Move(float const dt) noexcept
    {
-      auto const vel{ 100.0F * dt };
-      constexpr int boundaries{ 30 }; // Placeholder!
+      auto const bX = boundaries_.X();
+      auto const bW = boundaries_.W();
 
-      for (std::size_t i = 0; i < lastZombie_; ++i)
+      for (auto& zombie : zombies_)
       {
-         auto& dir = zombieDirections_[i];
-         auto& pos = zombiePositions_[i];
-
-         auto const step = dir == Direction::Left ? -vel : vel;
-         auto newX = pos.X() + step;
-
-         if (newX <= boundaries_.Left() + boundaries)
+         auto& speed = zombie.Speed();
+         auto const& nextPos = zombie.Position() + speed;
+         if (nextPos.X() <= bX || nextPos.X() >= bW)
          {
-            dir = Direction::Right;
-            newX = pos.X() + 1;
+            [[maybe_unused]] auto a = 1;
+            speed *= -1.f;
          }
-         else if (newX >= boundaries_.Right() - boundaries)
-         {
-            dir = Direction::Left;
-            newX = pos.X() - 1;
-         }
-
-         pos.X(newX);
+         zombie.Move(dt);
       }
    }
 
@@ -97,9 +84,9 @@ struct ZombieMgr
    constexpr auto GetBox() const noexcept -> Box<std::uint16_t> { return boundaries_; }
 
 private:
-   Box<std::uint16_t> boundaries_{ };
-   std::vector<Vector2Df> zombiePositions_{ };
-   std::vector<Direction> zombieDirections_{ };
-   std::size_t lastZombie_{ };
+   Box<std::uint16_t> boundaries_{};
+   std::vector<Zombie> zombies_{};
+   std::ranlux24_base randomGenerator_{ std::random_device{}() };
+   std::size_t lastZombie_{};
 };
 } // namespace TinyEngine

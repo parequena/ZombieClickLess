@@ -7,6 +7,7 @@ export module Renderer;
 
 import Input;
 import Math;
+import ZombieMgr.Zombie;
 
 export namespace TinyEngine
 {
@@ -40,7 +41,7 @@ struct Renderer
 
    auto Update() -> InputState
    {
-      InputState state{ };
+      InputState state{};
 
       while (const std::optional event = window_.pollEvent())
       {
@@ -84,19 +85,19 @@ struct Renderer
    constexpr auto Clear() noexcept -> void { window_.clear(sf::Color::Transparent); }
    constexpr auto Display() noexcept -> void { window_.display(); }
 
-   constexpr auto DrawZombie(Vector2Df const& position, bool const headingRight)
+   constexpr auto DrawZombie(Zombie const& zombie)
    {
-      auto const x = position.X();
-      auto const y = position.Y();
+      auto const x = zombie.Position().X();
+      auto const y = zombie.Position().Y();
 
-      sf::Sprite zombie{ textures_[std::size_t(Texture::Zombie)] };
+      sf::Sprite sp{ textures_[std::size_t(Texture::Zombie)] };
       auto const textureSize = textures_[std::size_t(Texture::Zombie)].getSize();
-      zombie.setOrigin({ float(textureSize.x) / 2.f, float(textureSize.y) / 2.f });
+      sp.setOrigin({ float(textureSize.x) / 2.f, float(textureSize.y) / 2.f });
 
-      float const sx = headingRight ? 0.1f : -0.1f;
-      zombie.setScale({ sx, 0.1f });
-      zombie.setPosition({ x, y });
-      window_.draw(zombie);
+      float const sx = (zombie.Speed().X() >= 0.0f) ? 0.1f : -0.1f;
+      sp.setScale({ sx, 0.1f });
+      sp.setPosition({ x, y });
+      window_.draw(sp);
    }
 
    constexpr auto DrawButton(Box<std::uint16_t> const& box) { DrawBox(box, Texture::Button, { 255, 255, 255, 255 }); }
@@ -105,8 +106,8 @@ struct Renderer
    constexpr void Close() noexcept { window_.close(); }
 
 private:
-   std::array<sf::Texture, std::size_t(Texture::Count)> textures_{ };
-   sf::RenderWindow window_{ };
+   std::array<sf::Texture, std::size_t(Texture::Count)> textures_{};
+   sf::RenderWindow window_{};
 
    constexpr auto DrawBox(Box<std::uint16_t> const& box, Texture const textureIdx, sf::Color const& color) -> void
    {

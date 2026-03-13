@@ -8,8 +8,7 @@ import :Vector2D;
 
 export namespace TinyEngine
 {
-template <typename T>
-   requires(std::is_integral_v<T> or std::is_floating_point_v<T>)
+template <Numeric T>
 struct [[nodiscard]] Box
 {
    explicit Box() = default;
@@ -33,8 +32,8 @@ struct [[nodiscard]] Box
    [[nodiscard]] constexpr auto H() const noexcept -> T { return height_; }
 
 private:
-   Vector2D<T> position_{ };
-   T width_{ };
-   T height_{ };
+   Vector2D<T> position_{};
+   T width_{};
+   T height_{};
 };
 }
