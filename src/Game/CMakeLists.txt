@@ -2,6 +2,7 @@ add_cpp_module(Game
    FILES
       Game.cxx
    LIBS
+      Math
       Helpers
       Button
       ZombieMgr

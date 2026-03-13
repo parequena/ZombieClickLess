@@ -9,6 +9,11 @@ import Input;
 import Math;
 import ZombieMgr.Zombie;
 
+static constexpr auto g_FontPath{ "assets/fonts/tuffy.ttf" };
+static constexpr auto g_ButtonPath{ "assets/menus/buttons/button_x.png" };
+static constexpr auto g_ZombiePath{ "assets/Zombie/01-Idle/__Zombie01_Idle_000.png" };
+static constexpr auto g_ManagerPath{ "assets/menus/character.png" };
+
 export namespace TinyEngine
 {
 struct Renderer
@@ -33,16 +38,14 @@ struct Renderer
       // window_.setPosition(bottomRight);
 
       // Load textures
-      textures_[std::size_t(Texture::Button)]
-        = sf::Texture{ "assets/menus/buttons/button_x.png", false, sf::IntRect({ 0, 0 }, { 24, 24 }) };
-      textures_[std::size_t(Texture::Zombie)] = sf::Texture{ "assets/Zombie/01-Idle/__Zombie01_Idle_000.png" };
-      textures_[std::size_t(Texture::Manager)] = sf::Texture{ "assets/menus/character.png" };
+      textures_[std::size_t(Texture::Button)] = sf::Texture{ g_ButtonPath, false, sf::IntRect({ 0, 0 }, { 24, 24 }) };
+      textures_[std::size_t(Texture::Zombie)] = sf::Texture{ g_ZombiePath };
+      textures_[std::size_t(Texture::Manager)] = sf::Texture{ g_ManagerPath };
    }
 
    auto Update() -> InputState
    {
       InputState state{};
-
       while (const std::optional event = window_.pollEvent())
       {
          if (event->is<sf::Event::Closed>())
@@ -53,18 +56,12 @@ struct Renderer
          if (const auto* key = event->getIf<sf::Event::KeyPressed>())
          {
             using Key = sf::Keyboard::Key;
-            if (key->code == Key::Escape)
-               state.keyEscape = true;
-            if (key->code == Key::Space)
-               state.keySpace = true;
-            if (key->code == Key::W)
-               state.keyW = true;
-            if (key->code == Key::A)
-               state.keyA = true;
-            if (key->code == Key::S)
-               state.keyS = true;
-            if (key->code == Key::D)
-               state.keyD = true;
+            state.keyEscape = key->code == Key::Escape;
+            state.keySpace = key->code == Key::Space;
+            state.keyW = key->code == Key::W;
+            state.keyA = key->code == Key::A;
+            state.keyS = key->code == Key::S;
+            state.keyD = key->code == Key::D;
          }
 
          if (const auto* click = event->getIf<sf::Event::MouseButtonPressed>())
@@ -100,7 +97,18 @@ struct Renderer
       window_.draw(sp);
    }
 
-   constexpr auto DrawButton(Box<std::uint16_t> const& box) { DrawBox(box, Texture::Button, { 255, 255, 255, 255 }); }
+   constexpr auto DrawText(std::string_view const str, Vector2Df const& position)
+   {
+      auto const x = position.X();
+      auto const y = position.Y();
+
+      sf::Text text{ font_ };
+      text.setString(str.data());
+      text.setPosition({ x, y });
+      window_.draw(text);
+   }
+
+   constexpr auto DrawButton(Box<std::uint16_t> const& box) { DrawBox(box, Texture::Button); }
    constexpr auto DrawManager(Box<std::uint16_t> const& box) { DrawBox(box, Texture::Manager, { 255, 255, 255, 128 }); }
 
    constexpr void Close() noexcept { window_.close(); }
@@ -108,8 +116,10 @@ struct Renderer
 private:
    std::array<sf::Texture, std::size_t(Texture::Count)> textures_{};
    sf::RenderWindow window_{};
+   sf::Font font_{ g_FontPath };
 
-   constexpr auto DrawBox(Box<std::uint16_t> const& box, Texture const textureIdx, sf::Color const& color) -> void
+   constexpr auto DrawBox(
+     Box<std::uint16_t> const& box, Texture const textureIdx, sf::Color const& color = { 255, 255, 255, 255 }) -> void
    {
       sf::Sprite sprite{ textures_[std::size_t(textureIdx)] };
       sprite.setPosition({ float(box.X()), float(box.Y()) });

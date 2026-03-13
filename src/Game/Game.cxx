@@ -21,6 +21,9 @@ struct Game
 {
    static constexpr std::size_t WIDTH{ 640 };
    static constexpr std::size_t HEIGHT{ 480 };
+   static constexpr Vector2Df ZOMBIE_COUNTER_POSITION{ 15.F, 10.F };
+   static constexpr Vector2Df INPUT_COUNTER_POSITION{ 300.F, 10.F };
+
    explicit Game()
        : renderer_{ std::make_unique<Renderer>(WIDTH, HEIGHT) }
        , closeButton_{ Box<std::uint16_t>{ Vector2Du16{ WIDTH - 64, 0 }, 64, 64 }, [&]() { keepPlaying_ = false; } }
@@ -47,7 +50,12 @@ struct Game
       for (std::size_t i = 0; i < nManagers; ++i)
       {
          spawners[i].SetTime(Timer::Seconds(5 + i));
-         spawners[i].SetCallback([&, i]() { managers_[i].SpawnZombie(); });
+         spawners[i].SetCallback(
+           [&, i]()
+           {
+              managers_[i].SpawnZombie();
+              ++zombieCounter_;
+           });
 
          movements[i].SetTime(Timer::Milliseconds(100 + i * 10));
          movements[i].SetCallback([&, i]() { managers_[i].Move(dt); });
@@ -69,6 +77,10 @@ struct Game
       while (true)
       {
          const InputState input = renderer_->Update();
+         if (input.keyW)
+         {
+            ++inputCounter_;
+         }
 
          if (input.closeRequested || input.keyEscape)
          {
@@ -91,9 +103,12 @@ struct Game
       renderer_->Close();
    }
 
-   void Draw()
+   void Draw() const noexcept
    {
       renderer_->Clear();
+
+      renderer_->DrawText(std::to_string(zombieCounter_), ZOMBIE_COUNTER_POSITION);
+      renderer_->DrawText(std::to_string(inputCounter_), INPUT_COUNTER_POSITION);
 
       renderer_->DrawButton(closeButton_.GetBox());
 
@@ -109,6 +124,8 @@ private:
    std::unique_ptr<Renderer> renderer_{};
    std::vector<ZombieMgr> managers_{};
    Button closeButton_;
+   std::uint32_t zombieCounter_{};
+   std::size_t inputCounter_{};
    bool keepPlaying_{ true };
 };
 } // namespace TinyEngine
